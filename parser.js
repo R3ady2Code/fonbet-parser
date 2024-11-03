@@ -4,7 +4,8 @@ const fs = require("fs");
 async function saveElementsToFile(url) {
     const browser = await puppeteer.launch({
         headless: false, // Установите true, если не хотите видеть браузер
-        protocolTimeout: 100000 // Увеличиваем время ожидания
+        protocolTimeout: 100000, // Увеличиваем время ожидания
+        args: ["--no-sandbox", "--disable-setuid-sandbox"] // Добавляем флаги
     });
     const page = await browser.newPage();
 
