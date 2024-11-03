@@ -92,4 +92,7 @@ async function saveElementsToFile(url) {
 }
 
 // Замените 'https://fon.bet/sports/hockey' на нужный URL
-saveElementsToFile("https://fon.bet/sports/hockey");
+saveElementsToFile("https://fon.bet/sports/hockey").catch((err) => {
+    console.log(err);
+    saveElementsToFile("https://fon.bet/sports/hockey");
+});
