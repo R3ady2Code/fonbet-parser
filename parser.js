@@ -23,6 +23,8 @@ async function saveElementsToFile(url) {
 
     await page.waitForSelector(".virtual-list--FMDYy._vertical--GsTT6", { timeout: 100000 });
 
+    await new Promise((res) => setTimeout(res, 3000));
+
     const elementsData = await page.evaluate(() => {
         const elements = document.querySelectorAll(".virtual-list--FMDYy._vertical--GsTT6");
         let results = [];
@@ -37,40 +39,24 @@ async function saveElementsToFile(url) {
 
                 // Проверяем наличие указанного элемента внутри дочерних элементов
                 Array.from(childElements).forEach((child, i) => {
-                    //клик, чтоб скрыть кэфы по периодам (скорее всего не работает, поскольку выполняется после querySelector)
-                    const secondChild = child.children[1];
-                    if (secondChild) {
-                        secondChild.click();
-                    }
-
                     const allFrozenRatio = child.querySelectorAll(".factor-value--zrkpK._disable--MkuDy .value--OUKql");
-                    const frozenRation = allFrozenRatio[1];
-                    if (frozenRation && Number(frozenRation.innerText)) {
+                    const frozenRatio = allFrozenRatio[1];
+                    if (frozenRatio && Number(frozenRatio.innerText) && allFrozenRatio.length === 1) {
                         function addRatio() {
                             if (child) {
                                 const name = child.querySelector('[data-testid="event"]')?.innerText;
                                 results.push(child.outerHTML);
-                                names.push({ name, k: frozenRation.innerText });
+                                names.push({ name, k: frozenRatio.innerText });
                             }
                         }
 
-                        // переписать алгоритм, определить сразу константный квадрат, по которому будем проверять валидность строки, и если проверяем его в цикле, то сравнивать будем соседний
-
-                        if (child[i + 1]) {
-                            if (!child[i + 1].querySelector(".factor-value--zrkpK._disable--MkuDy .value--OUKql")) {
-                                addRatio();
-                            }
-                        } else if (child[i - 1]) {
-                            if (!child[i - 1].querySelector(".factor-value--zrkpK._disable--MkuDy .value--OUKql")) {
-                                addRatio();
-                            }
-                        }
+                        addRatio();
                     }
                 });
             }
         });
 
-        return { results, names }; // Возвращаем массив найденных элементов
+        return { results, names };
     });
 
     console.log(elementsData.names);
@@ -92,6 +78,7 @@ async function saveElementsToFile(url) {
 }
 
 // Замените 'https://fon.bet/sports/hockey' на нужный URL
+
 saveElementsToFile("https://fon.bet/sports/hockey").catch((err) => {
     console.log(err);
     saveElementsToFile("https://fon.bet/sports/hockey");
