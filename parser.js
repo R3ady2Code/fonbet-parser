@@ -27,35 +27,28 @@ async function saveElementsToFile(url) {
 
     const elementsData = await page.evaluate(() => {
         const elements = document.querySelectorAll(".virtual-list--FMDYy._vertical--GsTT6");
+        const element = elements[1];
         let results = [];
         const names = [];
 
-        // Проходим по всем найденным элементам
-        elements.forEach((element) => {
-            const height = parseFloat(window.getComputedStyle(element).height);
-            if (height > 5000) {
-                // Ищем все дочерние элементы с атрибутом data-testid, начинающимся с sportBaseEvent
-                const childElements = element.querySelectorAll('[data-testid^="sportBaseEvent"]');
+        const childElements = element.querySelectorAll('[data-testid^="sportBaseEvent"]');
+        Array.from(childElements).forEach((child, i) => {
+            const allFrozenRatio = child.querySelectorAll(".factor-value--zrkpK._disable--MkuDy .value--OUKql");
+            // .factor-value--zrkpK._empty--GIWnm .value--OUKql возможный селектор?
 
-                // Проверяем наличие указанного элемента внутри дочерних элементов
-                Array.from(childElements).forEach((child, i) => {
-                    const allFrozenRatio = child.querySelectorAll(".factor-value--zrkpK._disable--MkuDy .value--OUKql");
-                    const frozenRatio = allFrozenRatio[1];
-                    if (frozenRatio && Number(frozenRatio.innerText) && allFrozenRatio.length === 1) {
-                        function addRatio() {
-                            if (child) {
-                                const name = child.querySelector('[data-testid="event"]')?.innerText;
-                                results.push(child.outerHTML);
-                                names.push({ name, k: frozenRatio.innerText });
-                            }
-                        }
-
-                        addRatio();
+            const frozenRatio = allFrozenRatio[0];
+            if (frozenRatio && Number(frozenRatio) && allFrozenRatio.length === 1) {
+                function addRatio() {
+                    if (child) {
+                        const name = child.querySelector('[data-testid="event"]')?.innerText;
+                        results.push(child.outerHTML);
+                        names.push({ name, k: frozenRatio.innerText });
                     }
-                });
+                }
+
+                addRatio();
             }
         });
-
         return { results, names };
     });
 
